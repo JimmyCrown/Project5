@@ -5,19 +5,28 @@ import CardDetails from '@/views/CardDetails.vue'
 import LoginPage from '@/views/LoginPage.vue'
 import SettingsPage from '@/views/SettingsPage.vue'
 
-  
+import { useAuth } from './Composables/useAuth'
+const {isAuthenticated} = useAuth()
 
 const routes = [
   { path: '/Project5/', name: 'Home', component: HomePage },
   { path: '/Project5,other', name: 'Other', component: () => import('@/views/OtherPage.vue') },
   { path: '/Project5/employees/:id', name: 'CardDetails', component: CardDetails },
   { path: '/Project5/login', name: 'LoginPage', component: LoginPage },
-  { path: '/Project5/settings', name: 'SettingsPage'},
+  { path: '/Project5/settings', name: 'SettingsPage',  component: SettingsPage,meta:{requiresAuth: true}},
 ]
 
 const router = createRouter({
   history: createWebHistory(),
   routes,
+})
+
+router.beforeEach((to, _, next) => {
+  if (to.meta.requiresAuth && !isAuthenticated.value) {
+    next({name: 'LoginPage', query: {redirect: to.fullPath}})
+  } else {
+    next()
+  }
 })
 
 export default router
